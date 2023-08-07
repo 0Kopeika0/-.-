@@ -1,0 +1,169 @@
+library Project1;
+
+{ Important note about DLL memory management: ShareMem must be the
+  first unit in your library's USES clause AND your project's (select
+  Project-View Source) USES clause if your DLL exports any procedures or
+  functions that pass strings as parameters or function results. This
+  applies to all strings passed to and from your DLL--even those that
+  are nested in records and classes. ShareMem is the interface unit to
+  the BORLNDMM.DLL shared memory manager, which must be deployed along
+  with your DLL. To avoid using BORLNDMM.DLL, pass string information
+  using PChar or ShortString parameters. }
+
+uses
+  System.SysUtils,
+  System.Classes;
+
+{$R *.res}
+
+type
+  massiv = array of integer;
+  BmassivB = array of byte;
+  Pmassiv = ^massiv;
+  PPmassiv = ^BmassivB;
+// ----------------------------------------------------------------------------//
+
+// СОРТИРОВКА ПУЗЫРЬКОМ
+// ----------------------------------------------------------------------------//
+procedure sort1(memoryA: Pmassiv; n:integer); stdcall;
+var
+  i,p,j:integer;
+begin
+  for i := 1 to n do
+    for j := 1 to n - i do
+      if memoryA^[j] > memoryA^[j + 1] then
+        begin { Обмен элементов }
+          p := memoryA^[j];
+          memoryA^[j] := memoryA^[j + 1];
+          memoryA^[j + 1] := p;
+        end;
+end;
+// ----------------------------------------------------------------------------//
+
+// СОРТИРОВКА МЕТОДОМ ПРОСТЫХ ВСТАВОК
+// ----------------------------------------------------------------------------//
+procedure sort2(memoryB,memoryC: Pmassiv; n:integer); stdcall;
+var
+  i,p,j:integer;
+begin
+  for i := 1 to n do
+  begin
+    j := i;
+    while (j > 1) and (memoryB^[j - 1] > memoryB^[i]) do
+      begin
+        memoryC^[j] := memoryB^[j - 1];
+        j := j - 1;
+      end;
+      memoryC^[j] := memoryB^[i];
+  end;
+end;
+// ----------------------------------------------------------------------------//
+
+// СОРТИРОВКА СЛИЯНИЕМ
+// ----------------------------------------------------------------------------//
+procedure Merge(var A: massiv; first, last: integer);
+var
+  middle, Start, final, i: integer;
+  B: massiv;
+begin
+  SetLength(B,1000000);
+  middle := (first + last) div 2; { вычисление среднего элемента }
+  Start := first; { начало левой части }
+  final := middle + 1; { начало правой части }
+  for i := first to last do { выполнять от начала до конца }
+    if (Start <= middle) and ((final > last) or (A[Start] < A[final])) then
+      begin
+        B[i] := A[Start];
+        inc(Start);
+      end
+    else
+      begin
+        B[i] := A[final];
+        inc(final);
+      end;
+  { возвращение результата в массив }
+  for i := first to last do
+    A[i] := B[i];
+end;
+
+procedure MergeSort(var A: massiv; first, last: integer);
+begin
+  if first < last then
+  begin
+    MergeSort(A, first, (first + last) div 2); { сортировка левой части }
+    MergeSort(A, (first + last) div 2 + 1, last); { сортировка правой части }
+    Merge(A, first, last); { слияние двух частей }
+  end;
+end;
+
+procedure sort3(memory: Pmassiv; last, n:integer); stdcall;
+begin
+  {Вызов сортирующей процедуры}
+  MergeSort(memory^, 1, n);
+end;
+// ----------------------------------------------------------------------------//
+
+// БЫСТРАЯ СОРТИРОВКА
+// ----------------------------------------------------------------------------//
+procedure quicksort(var mas: massiv; first, last: integer);
+var
+  f, l, mid, count: integer;
+begin
+  f := first;
+  l := last;
+  mid := mas[(f + l) div 2]; { вычисление опорного элемента }
+  repeat
+    while mas[f] < mid do
+      inc(f);
+    while mas[l] > mid do
+      dec(l);
+    if f <= l then { перестановка элементов }
+    begin
+      count := mas[f];
+      mas[f] := mas[l];
+      mas[l] := count;
+      inc(f);
+      dec(l);
+    end;
+  until f > l;
+  if first < l then
+    quicksort(mas, first, l);
+  if f < last then
+    quicksort(mas, f, last);
+end;
+
+procedure sort4(memoryD: Pmassiv; first, last: integer);
+begin
+  {Вызов сортирующей процедуры}
+  quicksort(memoryD^,1,last);
+end;
+// ----------------------------------------------------------------------------//
+
+// СОРТИРОВКА ПОДСЧЕТОМ
+// ----------------------------------------------------------------------------//
+procedure sort5(memoryE,memoryH: PPmassiv; n:integer); stdcall;
+var
+  CC: massiv;
+  i: integer;
+begin
+  { Сортировка данных }
+  SetLength(CC,n);
+  for i := 0 to 255 do
+    CC[i] := 0;
+  for i := 1 to n do
+    CC[memoryE^[i]] := CC[memoryE^[i]] + 1;
+  for i := 1 to 255 do
+    CC[i] := CC[i - 1] + CC[i];
+  for i := n downto 1 do
+    begin
+      memoryH^[CC[memoryE^[i]]] := memoryE^[i];
+      CC[memoryE^[i]] := CC[memoryE^[i]]-1;
+      { здесь мы избегаем возможности записи двух одинаковых чисел в одну ячейку }
+    end;
+end;
+// ----------------------------------------------------------------------------//
+
+Exports sort1, sort2, sort3, sort4, sort5;
+
+begin
+end.

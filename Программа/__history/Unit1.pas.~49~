@@ -1,0 +1,385 @@
+unit Unit1;
+
+interface
+
+uses
+  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants,
+  System.Classes, Vcl.Graphics,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.Grids, Vcl.StdCtrls, Vcl.Menus,ShellAPI,
+  Vcl.OleCtrls, SHDocVw;
+
+type
+  TForm1 = class(TForm)
+    Label1: TLabel;
+    Edit1: TEdit;
+    Button1: TButton;
+    RadioButton1: TRadioButton;
+    StringGrid1: TStringGrid;
+    Label2: TLabel;
+    Label3: TLabel;
+    Button2: TButton;
+    RadioButton2: TRadioButton;
+    RadioButton3: TRadioButton;
+    RadioButton4: TRadioButton;
+    RadioButton5: TRadioButton;
+    Label4: TLabel;
+    Label9: TLabel;
+    Label6: TLabel;
+    Label7: TLabel;
+    Label8: TLabel;
+    Label10: TLabel;
+    Label5: TLabel;
+    Edit2: TEdit;
+    Button3: TButton;
+    Button4: TButton;
+    Label11: TLabel;
+    Label12: TLabel;
+    Edit3: TEdit;
+    Label13: TLabel;
+    Label14: TLabel;
+    MainMenu1: TMainMenu;
+    N1: TMenuItem;
+    N2: TMenuItem;
+    N3: TMenuItem;
+    OpenDialog1: TOpenDialog;
+    SaveDialog1: TSaveDialog;
+    N4: TMenuItem;
+    procedure Button8Click(Sender: TObject);
+    procedure Button2Click(Sender: TObject);
+    procedure RadioButton1Click(Sender: TObject);
+    procedure RadioButton2Click(Sender: TObject);
+    procedure RadioButton5Click(Sender: TObject);
+    procedure SringGrid(Sender: TObject);
+    procedure RadioButton4Click(Sender: TObject);
+    procedure RadioButton3Click(Sender: TObject);
+    procedure Button5Click(Sender: TObject);
+    procedure Button4Click(Sender: TObject);
+    procedure N2Click(Sender: TObject);
+    procedure N3Click(Sender: TObject);
+    procedure N4Click(Sender: TObject);
+  private
+    { Private declarations }
+  public
+    { Public declarations }
+  end;
+
+  {Объявление новых типов}
+  massiv = array of integer;
+  BmassivB = array of byte;
+  Pmassiv = ^massiv;
+  PPmassiv = ^BmassivB;
+
+var
+  Form1: TForm1;
+  WordDocument: OleVariant; //Объявляем переменную для доступа к объекту MS Word
+  SaveChanges: OleVariant;
+  Word: variant;
+
+implementation
+
+{$R *.dfm}
+
+const
+wdPromtToSaveChanges = $FFFFFFFE;
+
+// ИМПОРТ БИБЛИОТЕКИ СОРТИРОВКИ ПУЗЫРЬКОМ
+// ----------------------------------------------------------------------------//
+procedure sort1(memoryA: Pmassiv; n:integer); stdcall;
+external 'C:\Users\Иван\Desktop\Язык С и Дельфи\Курсовая\Программа\Библиотека\Win32\Debug\Project1.dll';
+// ----------------------------------------------------------------------------//
+
+// ИМПОРТ БИБЛИОТЕКИ СОРТИРОВКИ МЕТОДОМ ПРОСТЫХ ВСТАВОК
+// ----------------------------------------------------------------------------//
+procedure sort2(memoryB,memoryC: Pmassiv; n:integer); stdcall;
+external 'C:\Users\Иван\Desktop\Язык С и Дельфи\Курсовая\Программа\Библиотека\Win32\Debug\Project1.dll';
+// ----------------------------------------------------------------------------//
+
+// ИМПОРТ БИБЛИОТЕКИ СОРТИРОВКИ СЛИЯНИЕМ
+// ----------------------------------------------------------------------------//
+procedure sort3(memoryD: Pmassiv; last, n:integer); stdcall;
+external 'C:\Users\Иван\Desktop\Язык С и Дельфи\Курсовая\Программа\Библиотека\Win32\Debug\Project1.dll';
+
+// ИМПОРТ БИБЛИОТЕКИ БЫСТРАЯ СОРТИРОВКА
+// ----------------------------------------------------------------------------//
+procedure sort4(memoryE: Pmassiv; fist,last:integer); stdcall;
+external 'C:\Users\Иван\Desktop\Язык С и Дельфи\Курсовая\Программа\Библиотека\Win32\Debug\Project1.dll';
+// ----------------------------------------------------------------------------//
+
+// ИМПОРТ БИБЛИОТЕКИ СОРТИРОВКИ ПОДСЧЕТОМ
+// ----------------------------------------------------------------------------//
+procedure sort5(memoryF,memoryH: PPmassiv; n:integer); stdcall;
+external 'C:\Users\Иван\Desktop\Язык С и Дельфи\Курсовая\Программа\Библиотека\Win32\Debug\Project1.dll';
+// ----------------------------------------------------------------------------//
+
+// АЛГОРИТМ ПО СЧИТЫВАНИЮ КОЛИЧЕСТВА ЭЛЕМЕНТОВ В ТАБЛИЦЕ ВЗЯТОГО ИЗ ПОЛЯ LABLE
+// ----------------------------------------------------------------------------//
+procedure TForm1.Button8Click(Sender: TObject);
+var
+  n: integer;
+begin
+  n := StrToInt(Edit1.Text);
+  StringGrid1.ColCount := n + 1;
+end;
+// ----------------------------------------------------------------------------//
+
+// АЛГОРИТМ ПО ЗАПОЛНЕНИЮ ТАБЛИЦЫ СЛУЧАЙНЫМИ ЗНЧЕНИЯМИ
+// ----------------------------------------------------------------------------//
+procedure TForm1.Button2Click(Sender: TObject);
+var
+  n, i: integer;
+begin
+  n := StrToInt(Edit1.Text);
+  for i := 1 to n do
+    StringGrid1.Cells[i, 0] := IntToStr(random(100));
+end;
+// ----------------------------------------------------------------------------//
+
+// АЛГОРИТМ ПО ЗАПОЛНЕНИЮ ТАБЛИЦЫ ЗНАЧЕНИЯМИ ИЗ ФАЙЛА
+// ----------------------------------------------------------------------------//
+procedure TForm1.Button5Click(Sender: TObject);
+var
+  f: TextFile;
+  name, element: string;
+  count: integer;
+begin
+  count:=0;
+  name:= Edit2.Text ;
+  AssignFile(f,name);
+  Reset(f);
+  while (not EOF(f)) do begin
+    count:=count+1;
+    Readln(f,element);
+    StringGrid1.Cells[count, 0] := element;
+  end;
+  CloseFile(f);
+end;
+// ----------------------------------------------------------------------------//
+
+// АЛГОРИТМ ПО ЗАПОЛНЕНИЮ ТАБЛИЦЫ ЗНАЧЕНИЯМИ В ФАЙЛ
+// ----------------------------------------------------------------------------//
+procedure TForm1.Button4Click(Sender: TObject);
+var
+  f: TextFile;
+  name, element: string;
+  count,i,n: integer;
+begin
+  count:=0;
+  n:=StrToInt(Edit1.Text);
+  name:= Edit3.Text ;
+  AssignFile(f,name);
+  Rewrite(f);
+  for i := 1 to n do begin
+    count:=count+1;
+    element:=StringGrid1.Cells[count, 0];
+    Writeln(f,element);
+  end;
+  CloseFile(f);
+end;
+// ----------------------------------------------------------------------------//
+
+// АЛГОРИТМ ПО РАБОТЕ С MainMenu1
+// ----------------------------------------------------------------------------//
+procedure TForm1.N2Click(Sender: TObject);
+begin
+  if OpenDialog1.Execute()=true then
+    begin
+      Edit2.Text:=OpenDialog1.FileName;
+    end;
+end;
+// ----------------------------------------------------------------------------//
+
+// АЛГОРИТМ ПО РАБОТЕ С MainMenu2
+// ----------------------------------------------------------------------------//
+procedure TForm1.N3Click(Sender: TObject);
+begin
+  if OpenDialog1.Execute()=true then
+    begin
+      Edit3.Text:=OpenDialog1.FileName;
+    end;
+end;
+// ---------------------------------------------------------------------------//
+
+// ----------------------------------------------------------------------------//
+procedure TForm1.N4Click(Sender: TObject);
+var name:string;
+begin
+  name:='C:\Users\Иван\Desktop\Язык С и Дельфи\Курсовая\Программа\a.html';
+  ShellExecute(0, 'open', PChar(name), nil, nil, SW_SHOWNORMAL);
+end;
+// ----------------------------------------------------------------------------//
+
+// СОРТИРОВКА ПУЗЫРЬКОМ
+// ----------------------------------------------------------------------------//
+procedure TForm1.RadioButton1Click(Sender: TObject);
+var
+  A: massiv;
+  memoryA:Pmassiv;
+  n, i, j, p: integer;
+  Start, Stop: cardinal;
+  Elapsed: cardinal;
+begin
+  n:= StrToInt(Edit1.Text);
+  SetLength(A,n);
+  { Определение размера массива A (N) и его заполнение }
+  for i := 1 to n do
+    A[i] := StrToInt(StringGrid1.Cells[i, 0]);
+
+  Start:=GetTickCount; // засекли начало выполнения операции
+  memoryA:=@A; // запись в переменную адрес массива А
+  sort1(memoryA,n);  // запуск процедуры с алгоритмом сортировки
+
+  // засекли окончание выполнения операции
+  Stop:=GetTickCount; //засекли окончание выполнения операции
+  Elapsed:=Stop-Start;//время в миллисекундах
+  Label10.Caption := IntToStr(Elapsed)+' мс';
+
+  { Вывод отсортированного массива A }
+  for i := 1 to n do
+    StringGrid1.Cells[i, 0] := IntToStr(A[i]);
+end;
+// ----------------------------------------------------------------------------//
+
+// СОРТИРОВКА МЕТОДОМ ПРОСТЫХ ВСТАВОК
+// ----------------------------------------------------------------------------//
+procedure TForm1.RadioButton2Click(Sender: TObject);
+var
+  B, C: massiv;
+  memoryB,memoryC:Pmassiv;
+  n, i, j, p: integer;
+  Start, Stop: cardinal;
+  Elapsed: cardinal;
+begin
+  n:= StrToInt(Edit1.Text);
+  SetLength(C,n);
+  { Определение размера массива A (N) и его заполнение }
+  SetLength(B,n);
+  for i := 1 to n do
+    B[i] := StrToInt(StringGrid1.Cells[i, 0]);
+
+  Start:=GetTickCount; // засекли начало выполнения операции
+
+  memoryB:=@B; // запись в переменную адрес массива А
+  memoryC:=@C; // запись в переменную адрес массива B
+  sort2(memoryB,memoryC,n);  // запуск процедуры с алгоритмом сортировки
+
+  // засекли окончание выполнения операции
+  Stop:=GetTickCount; //засекли окончание выполнения операции
+  Elapsed:=Stop-Start;//время в миллисекундах
+  Label8.Caption := IntToStr(Elapsed)+' мс';
+
+  { Вывод отсортированного массива В }
+  for i := 1 to n do
+    StringGrid1.Cells[i, 0] := IntToStr(C[i]);
+end;
+// ----------------------------------------------------------------------------//
+
+// СОРТИРОВКА СЛИЯНИЕМ
+// ----------------------------------------------------------------------------//
+procedure TForm1.RadioButton3Click(Sender: TObject);
+var
+  D: massiv;
+  memoryD:Pmassiv;
+  n, i: integer;
+  Start, Stop: cardinal;
+  Elapsed: cardinal;
+begin
+  { Определение размера массива A (N) и его заполнение }
+  n := StrToInt(Edit1.Text);
+  SetLength(D,n);
+  for i := 1 to n do
+    D[i] := StrToInt(StringGrid1.Cells[i, 0]);
+
+  Start:=GetTickCount; // засекли начало выполнения операции
+
+  memoryD:=@D; // запись в переменную адрес массива A
+  sort3(memoryD,1,n);  // запуск процедуры с алгоритмом сортировки
+
+  // засекли окончание выполнения операции
+  Stop:=GetTickCount; //засекли окончание выполнения операции
+  Elapsed:=Stop-Start;//время в миллисекундах
+  Label7.Caption := IntToStr(Elapsed)+' мс';
+
+  { Вывод отсортированного массива A }
+  for i := 1 to n do
+    StringGrid1.Cells[i, 0] := IntToStr(D[i]);
+end;
+// ----------------------------------------------------------------------------//
+
+// БЫСТРАЯ СОРТИРОВКА
+// ----------------------------------------------------------------------------//
+procedure TForm1.RadioButton4Click(Sender: TObject);
+var
+  E: massiv;
+  memoryE: Pmassiv;
+  first, last, i, n: integer;
+  Start, Stop: cardinal;
+  Elapsed: cardinal;
+begin
+  { Определение размера массива A и его заполнение }
+  n := StrToInt(Edit1.Text);
+  SetLength(E,n);
+  for i := 1 to n do
+    E[i] := StrToInt(StringGrid1.Cells[i, 0]);
+
+  Start:=GetTickCount; // засекли начало выполнения операции
+
+  memoryE:=@E; // запись в переменную адрес массива А
+  sort4(memoryE, 1, n);  // запуск процедуры с алгоритмом сортировки
+
+  // засекли окончание выполнения операции
+  Stop:=GetTickCount; //засекли окончание выполнения операции
+  Elapsed:=Stop-Start;//время в миллисекундах
+  Label6.Caption := IntToStr(Elapsed)+' мс';
+
+  { Вывод отсортированного массива A }
+  for i := 1 to n do
+    StringGrid1.Cells[i, 0] := IntToStr(E[i]);
+end;
+// ----------------------------------------------------------------------------//
+
+// СОРТИРОВКА ПОДСЧЕТОМ
+// ----------------------------------------------------------------------------//
+procedure TForm1.RadioButton5Click(Sender: TObject);
+var
+  F, H: BmassivB;
+  memoryF,memoryH:PPmassiv;
+  CC: massiv;
+  n, i: integer;
+  Start, Stop: cardinal;
+  Elapsed: cardinal;
+Begin
+  n := StrToInt(Edit1.Text);
+  SetLength(H,n);
+  SetLength(CC,n);
+  { Определение размера массива A (N) и его заполнение }
+  SetLength(F,n);
+  for i := 1 to n do
+    F[i] := StrToInt(StringGrid1.Cells[i, 0]);
+
+  Start:=GetTickCount; // засекли начало выполнения операции
+
+  memoryF:=@F; // запись в переменную адрес массива А
+  memoryH:=@H; // запись в переменную адрес массива B
+  sort5(memoryF,memoryH,n);  // запуск процедуры с алгоритмом сортировки
+
+  // засекли окончание выполнения операции
+  Stop:=GetTickCount; //засекли окончание выполнения операции
+  Elapsed:=Stop-Start;//время в миллисекундах
+  Label9.Caption := IntToStr(Elapsed)+' мс';
+
+  { Вывод массива B }
+  for i := 1 to n do
+    StringGrid1.Cells[i, 0] := IntToStr(H[i]);
+end;
+// ----------------------------------------------------------------------------//
+
+// ПРОЦЕДУРА ПО РАБОТЕ С ФОРМОЙ В МОМЕНТ ЗАПУСКА
+// ----------------------------------------------------------------------------//
+procedure TForm1.SringGrid(Sender: TObject);
+begin
+  StringGrid1.Cells[0, 0] := 'Значения'; //Запись в таблицу элемента с индексом 0
+  BorderStyle:=bsSingle; //Запрет на растяжение формы
+end;
+// ----------------------------------------------------------------------------//
+
+end.
